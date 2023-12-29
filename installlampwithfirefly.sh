@@ -13,8 +13,8 @@ if [ -d /var/www/html/firefly-iii ]; then
   rm -r firefly-iii-old
 
   # Get latest version of firefly
-  latestversion=$(curl -s https://api.github.com/repos/firefly-iii/firefly-iii/releases/latest  | grep -oP '"tag_name": "\K(.*)(?=")')
-
+  latestversion=$(curl -s https://api.github.com/repos/firefly-iii/firefly-iii/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+  
   # Install latest version
   yes | composer create-project grumpydictator/firefly-iii --no-dev --prefer-dist firefly-iii-updated $latestversion
   cp firefly-iii/.env firefly-iii-updated/.env
@@ -51,37 +51,36 @@ else
     echo ""
     echo ""
 
-# Check if Debain is installed.  If it is, install the php repositories
-if grep -q Debian "/etc/os-release" ; then
-	echo "Debian is installed"
-	echo
-	echo "Installing Debian prerequisites"
-	echo
-	sudo apt update
-	sudo apt install -y curl wget gnupg2 ca-certificates lsb-release apt-transport-https unzip
-	wget https://packages.sury.org/php/apt.gpg
-	sudo apt-key add apt.gpg
+# Check if Debain is installed. If it is, install the php repositories
+if grep -q Debian "/etc/os-release"; then
+  echo "Debian is installed"
+  echo
+  echo "Installing Debian prerequisites"
+  echo
+  sudo apt update
+  sudo apt install -y curl wget gnupg2 ca-certificates lsb-release apt-transport-https unzip
+  wget https://packages.sury.org/php/apt.gpg
+  sudo apt-key add apt.gpg
   echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php8.list
 else
-	echo "Not Debian...continuing"
-	echo
-	echo "Adding Ubuntu PHP repos"
-	echo
-	# Add the PHP 8.0 repo
-	sudo apt install ca-certificates apt-transport-https software-properties-common -y
-	sudo add-apt-repository ppa:ondrej/php
-	sudo add-apt-repository ppa:ondrej/apache2
+  echo "Not Debian...continuing"
+  echo
+  echo "Adding Ubuntu PHP repos"
+  echo
+  # Add the PHP 8.3 repo
+  sudo add-apt-repository ppa:ondrej/php
+  sudo add-apt-repository ppa:ondrej/apache2
 fi
 
 # Perform updates
 sudo apt update && sudo apt upgrade -y
 
 # Ensure en_US.UTF-8 locale is installed
-printf "en_US.UTF-8 UTF-8\n"  >>  /etc/locale.gen
+printf "en_US.UTF-8 UTF-8\n" >>/etc/locale.gen
 locale-gen
 
 # Install web components
-sudo apt install apache2 mysql-common mariadb-server php8.2 php8.2-common php8.2-bcmath php8.2-intl php8.2-curl php8.2-zip php8.2-gd php8.2-xml php8.2-mbstring php8.2-ldap php8.2-mysql php-mysql curl -y
+sudo apt install apache2 mysql-common mariadb-server php8.3 php8.3-common php8.3-bcmath php8.3-intl php8.3-curl php8.3-zip php8.3-gd php8.3-xml php8.3-mbstring php8.3-ldap php8.3-mysql php-mysql curl -y
 
 echo
 echo "Installing Composer (a friendly php helper that unpacks the php libraries contained within firefly and creates a firefly-iii project)..."
@@ -96,14 +95,13 @@ echo "Unpacking firefly-iii project"
 echo
 sudo composer create-project grumpydictator/firefly-iii --no-dev --prefer-dist firefly-iii 6.0.5
 sudo composer create-project grumpydictator/firefly-iii --no-dev --prefer-dist firefly-iii 5.7.18
-# This will stop the  white screen issue
+# This will stop the white screen issue
 # Changing firefly-iii folder permissions
 sudo chown -R www-data:www-data firefly-iii
 sudo chmod -R 775 firefly-iii/storage
 echo
 echo "Unpacking data importer for firefly-iii"
 echo
-
 
 sudo composer create-project firefly-iii/data-importer --no-dev --prefer-dist data-importer 1.0.2
 
@@ -116,17 +114,17 @@ echo
 # Create database environment
 echo "Creating firefly database environment..."
 echo
-echo "Enter your MySQL root password.  If you don't have one, just hit Enter."
+echo "Enter your MySQL root password. If you don't have one, just hit Enter."
 sudo mysql -u root -p < $HOME/firefly-iii-automation/mysql_setup.sql
 sudo cp $HOME/firefly-iii-automation/.env /var/www/html/firefly-iii/
 
 # Editing apache to allow modules
 sudo cp $HOME/firefly-iii-automation/apache2.conf /etc/apache2/
 sudo a2dismod php7.4
-sudo a2enmod php8.2
+sudo a2enmod php8.3
 sudo a2enmod rewrite
 
-#Setup Artisan
+# Setup Artisan
 cd /var/www/html/firefly-iii
 sudo php artisan migrate:refresh --seed
 sudo php artisan firefly-iii:upgrade-database
