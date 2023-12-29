@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Perform updates
+sudo apt update && sudo apt upgrade -y
+
+# Install web components
+sudo apt install apache2 mysql-common mariadb-server php8.3 php8.3-common php8.3-bcmath php8.3-intl php8.3-curl php8.3-zip php8.3-gd php8.3-xml php8.3-mbstring php8.3-ldap php8.3-mysql php-mysql php8.3-intl php8.3-xml curl -y
+
 # Check if Firefly III is installed
 if [ -d /var/www/html/firefly-iii ]; then
   echo "An existing Firefly III installation was detected. Now proceeding to check for an update."
@@ -72,15 +78,11 @@ else
   sudo add-apt-repository ppa:ondrej/apache2
 fi
 
-# Perform updates
-sudo apt update && sudo apt upgrade -y
 
 # Ensure en_US.UTF-8 locale is installed
 printf "en_US.UTF-8 UTF-8\n" >>/etc/locale.gen
 locale-gen
 
-# Install web components
-sudo apt install apache2 mysql-common mariadb-server php8.3 php8.3-common php8.3-bcmath php8.3-intl php8.3-curl php8.3-zip php8.3-gd php8.3-xml php8.3-mbstring php8.3-ldap php8.3-mysql php-mysql curl -y
 
 echo
 echo "Installing Composer (a friendly php helper that unpacks the php libraries contained within firefly and creates a firefly-iii project)..."
